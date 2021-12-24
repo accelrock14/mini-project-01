@@ -4,6 +4,7 @@
 #include <string.h>
 using namespace std;
 
+//convert the simpified input unit to all different available units
 void calculate(char units[][20], list<float> con, float value)
 {
     int ele = 0;
@@ -12,17 +13,21 @@ void calculate(char units[][20], list<float> con, float value)
     FILE *fp1;
     fp1 = fopen("history.txt", "a");
 
+    //divide with the list containing conversion units
     for (auto i = con.begin(); i != con.end(); i++)
     {
         sol = value / *i;
         printf("%.2f %s\n", sol, units[ele]);
+        //insert the results into a history file
         fprintf(fp1, "%.2f %s\n", sol, units[ele]);
         ele++;
     }
+    printf("\n");
     fclose(fp1);
 }
 
-void find(char units[][20], list<float> con)
+//simplify the input unit to the simplest unit
+void simplify(char units[][20], list<float> con)
 {
     int ele = 0;
     float value, input;
@@ -37,6 +42,7 @@ void find(char units[][20], list<float> con)
     fprintf(fp1, "\nConvertions of %.2f %s are:\n", input, unit);
     fclose(fp1);
 
+    //multiply with the list containing conversion units
     for (auto i = con.begin(); i != con.end(); i++)
     {
         if (strcmp(unit, units[ele]) == 0)
@@ -52,33 +58,81 @@ void find(char units[][20], list<float> con)
     }
 }
 
+void history()
+{
+    int ch;
+    const int max = 256;
+    char details[50];
+    printf("1.Veiw history\t2.clear history\n");
+    scanf("%d", &ch);
+
+    FILE *fp1;
+
+    switch (ch)
+    {
+    //veiw the history saved in the history file
+    case 1:
+        fp1 = fopen("history.txt", "r");
+        if (fp1 == NULL)
+        {
+            printf("Error: could not open file\n");
+        }
+
+        char buffer[max];
+        //gets read the contents of the file one line at a time
+        while (fgets(buffer, max, fp1))
+            printf("%s", buffer);
+        break;
+    case 2:
+        //clear the history saved in the history file
+        fp1 = fopen("history.txt", "w");
+        fprintf(fp1, " ", details);
+        printf("history has been cleared\n");
+        break;
+    default:
+        printf("INVALID INPUT!\n");
+    }
+    fclose(fp1);
+}
+
 void Measure()
 {
+    //conversions units of the different measurement systems
     list<float> weight = {1.0, 1000.0, 28.35, 423.592};
     char w[][20] = {"g", "kg", "oz", "lbs"};
 
     list<float> length = {1.0, 100.0, 100000.0, 160934.0, 30.48};
     char l[][20] = {"cm", "m", "km", "miles", "feet"};
 
+    list<float> liquid = {1.0, 0.2641722, 1.05669, 33.814};
+    char lq[][20] = {"L", "gal", "qt", "oz"};
+
     int sw;
 
-    while (sw != 3)
+    while (sw != 5)
     {
-        printf("Chose type of measurement\n1.Lenght\n2.Weight\nPress '3' to go Back\n");
+        printf("Chose type of measurement\n1.Lenght\t2.Weight\t3.Liquid\t4.History\t5.Back\n");
         scanf("%d", &sw);
 
-        //switch between length and weight
+        //switch between length, weight and liquid conversions
         switch (sw)
         {
         case 1:
             printf("\nenter input length = ");
-            find(l, length);
+            simplify(l, length);
             break;
         case 2:
             printf("\nenter input weight = ");
-            find(w, weight);
+            simplify(w, weight);
             break;
         case 3:
+            printf("\nenter input liquid = ");
+            simplify(lq, liquid);
+            break;
+        case 4:
+            history();
+            break;
+        case 5:
             break;
         default:
             printf("INVALID INPUT!\n");
@@ -87,20 +141,22 @@ void Measure()
     }
 }
 
+//array of structures containing all the account details
 struct amount
 {
     float money;
     char name[20];
 };
 char inputCurr[10];
-float convUnits[20] = {1.0, 0.013, 0.010, 1.53};
+float convUnits[20] = {1.0, 0.013, 0.010, 1.53, 0.012};
 struct amount a[10];
 
-void scan(int key, float inp)
+//find what is the currency that the user entered
+void findCurr(int key, float inp)
 {
     int x;
-    char currencies[][20] = {"rupees", "dollars", "pounds", "yen"};
-    for (x = 0; x < 4; x++)
+    char currencies[][20] = {"rupees", "dollars", "pounds", "yen", "euro"};
+    for (x = 0; x < 5; x++)
     {
         if (strcmp(inputCurr, currencies[x]) == 0)
         {
@@ -109,17 +165,47 @@ void scan(int key, float inp)
     }
 }
 
-void count(int key)
+//convert the money in the account to different units
+void convert(int key)
 {
-    float rupees, dollars, pounds, yen;
+    float rupees, dollars, pounds, yen, euro;
 
     rupees = a[key].money * convUnits[0];
     dollars = a[key].money * convUnits[1];
     pounds = a[key].money * convUnits[2];
     yen = a[key].money * convUnits[3];
-    printf("\n%s\t₹%.2f\t$%.2f\t\t£%.2f\t\t¥%.2f\n", a[key].name, a[key].money, dollars, pounds, yen);
+    euro = a[key].money * convUnits[4];
+    printf("\n%s\t₹%.2f\t$%.2f\t\t£%.2f\t\t¥%.2f\t\t€%.2f\n", a[key].name, a[key].money, dollars, pounds, yen, euro);
 }
 
+//display the account details with converted units
+void display(int n)
+{
+    int i;
+    printf("\nThe account details are \n");
+    printf("\nName\tRupees\t\tDollars\t\tPounds\t\tYen\n");
+    for (i = 0; i < n; i++)
+    {
+        convert(i);
+    }
+}
+
+//add a new account to the array
+void add(int n)
+{
+    float inp;
+
+    printf("\nenter the %d acount details \n", n + 1);
+    printf("enter the account name without white spaces: ");
+    scanf("%s", a[n].name);
+    printf("enter the amount : ");
+    scanf("%f %s", &inp, &inputCurr);
+    printf("account successfully added");
+    //find input currency
+    findCurr(n, inp);
+}
+
+//search for the account that the user wants to veiw
 void search(int n)
 {
     int i, found = 0;
@@ -132,8 +218,9 @@ void search(int n)
         if (strcmp(a[i].name, sname) == 0)
         {
             found++;
+            //display details of the found account
             printf("\nAccount details are:\n");
-            count(i);
+            convert(i);
         }
     }
     if (found == 0)
@@ -142,6 +229,7 @@ void search(int n)
     }
 }
 
+//edit the amount of money in an existing account
 void edit(int n)
 {
     int i;
@@ -156,62 +244,49 @@ void edit(int n)
         {
             printf("enter the new amount : ");
             scanf("%f %s", &inp, &inputCurr);
-            scan(i, inp);
+            findCurr(i, inp);
             printf("Successfully edited");
         }
     }
 }
 
-void add(int n)
+//remove the details from unrequired account
+void remove(int n)
 {
-    int i;
-    float inp;
+    int i, found = 0;
+    char sname[20];
 
-    printf("\nenter the new amount details \n");
-    printf("enter the new account name without white spaces: ");
-    scanf("%s", a[n].name);
-    printf("enter the amount : ");
-    scanf("%f %s", &inp, &inputCurr);
-    scan(n, inp);
-    printf("new account successfully added\n");
+    printf("\nEnter account name to delete: ");
+    scanf("%s", sname);
+    for (i = 0; i < n; i++)
+    {
+        if (strcmp(a[i].name, sname) == 0)
+        {
+            found++;
+            a[i].money = 0;
+            printf("details successfully removed");
+        }
+    }
+    if (found == 0)
+    {
+        printf("Account not found\n");
+    }
 }
 
 //function to convert currency
 void Currency()
 {
-    int i, n, ch;
+    int i, n = 0, ch;
     float inp;
-    printf("Enter the number of details n= ");
-    scanf("%d", &n);
-    for (i = 0; i < n; i++)
-    {
-        printf("\nenter the %d amount details \n", i + 1);
-        printf("enter the account name without white spaces:");
-        scanf("%s", a[i].name);
-        printf("enter the amount in rupees : ");
-        scanf("%f %s", &inp, &inputCurr);
-        scan(i, inp);
-    }
-    printf("\nThe account details are \n");
-    printf("\nName\tRupees\t\tDollars\t\tPounds\t\tYen\n");
-    for (i = 0; i < n; i++)
-    {
-        count(i);
-    }
 
-    while (ch != 5)
+    while (ch != 6)
     {
-        printf("\nselect option\n1.Display  2.Add  3.Search  4.Edit  5.Exit\n");
+        printf("\nselect option\n1.Display\t2.Add\t3.Search\t4.Edit\t5.Delete\t6.Back\n");
         scanf("%d", &ch);
         switch (ch)
         {
         case 1:
-            printf("\naccount details are:\n");
-            printf("\nName\tRupees\t\tDollars\t\tPounds\t\tYen\n");
-            for (i = 0; i < n; i++)
-            {
-                count(i);
-            }
+            display(n);
             break;
         case 2:
             add(n);
@@ -224,6 +299,9 @@ void Currency()
             edit(n);
             break;
         case 5:
+            remove(n);
+            break;
+        case 6:
             break;
         default:
             printf("Invalid choise!!");
@@ -238,21 +316,18 @@ int main()
     while (s != 3)
     {
         //switch between measurement and currency convertor
-        printf("\n1.Measurement\n2.Currency\nPress '3' to Exit\n");
+        printf("\n1.Measurement\t2.Currency\tPress '3' to Exit\n");
         scanf("%d", &s);
         switch (s)
         {
         case 1:
             Measure();
             break;
-
         case 2:
             Currency();
             break;
-
         case 3:
             break;
-
         default:
             printf("\nInvalid Input!!\n");
             break;
