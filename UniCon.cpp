@@ -4,7 +4,7 @@
 #include <string.h>
 using namespace std;
 
-//convert the simpified input unit to all different available units
+// convert the simpified input unit to all different available units
 void calculate(char units[][20], list<float> con, float value)
 {
     int ele = 0;
@@ -12,13 +12,17 @@ void calculate(char units[][20], list<float> con, float value)
 
     FILE *fp1;
     fp1 = fopen("history.txt", "a");
+    if (fp1 == NULL)
+    {
+        printf("Error: could not open file\n");
+    }
 
-    //divide with the list containing conversion units
+    // divide with the list containing conversion units
     for (auto i = con.begin(); i != con.end(); i++)
     {
-        sol = value / *i;
+        sol = value / *i; // convert to all other available units
         printf("%.2f %s\n", sol, units[ele]);
-        //insert the results into a history file
+        // insert the results into a history file
         fprintf(fp1, "%.2f %s\n", sol, units[ele]);
         ele++;
     }
@@ -26,7 +30,7 @@ void calculate(char units[][20], list<float> con, float value)
     fclose(fp1);
 }
 
-//simplify the input unit to the simplest unit
+// simplify the input unit to the simplest unit
 void simplify(char units[][20], list<float> con)
 {
     int ele = 0;
@@ -42,7 +46,7 @@ void simplify(char units[][20], list<float> con)
     fprintf(fp1, "\nConvertions of %.2f %s are:\n", input, unit);
     fclose(fp1);
 
-    //multiply with the list containing conversion units
+    // find the input uniy and multiply with the list containing conversion units
     for (auto i = con.begin(); i != con.end(); i++)
     {
         if (strcmp(unit, units[ele]) == 0)
@@ -70,7 +74,7 @@ void history()
 
     switch (ch)
     {
-    //veiw the history saved in the history file
+    // veiw the history saved in the history file
     case 1:
         fp1 = fopen("history.txt", "r");
         if (fp1 == NULL)
@@ -79,14 +83,14 @@ void history()
         }
 
         char buffer[max];
-        //gets read the contents of the file one line at a time
+        // gets read the contents of the file one line at a time
         while (fgets(buffer, max, fp1))
             printf("%s", buffer);
         break;
     case 2:
-        //clear the history saved in the history file
+        // clear the history saved in the history file
         fp1 = fopen("history.txt", "w");
-        fprintf(fp1, " ", details);
+        fprintf(fp1, " ");
         printf("history has been cleared\n");
         break;
     default:
@@ -97,7 +101,7 @@ void history()
 
 void Measure()
 {
-    //conversions units of the different measurement systems
+    // conversions units and SI units of the different measurement systems
     list<float> weight = {1.0, 1000.0, 28.35, 423.592};
     char w[][20] = {"g", "kg", "oz", "lbs"};
 
@@ -114,7 +118,7 @@ void Measure()
         printf("Chose type of measurement\n1.Lenght\t2.Weight\t3.Liquid\t4.History\t5.Back\n");
         scanf("%d", &sw);
 
-        //switch between length, weight and liquid conversions
+        // switch between length, weight and liquid conversions
         switch (sw)
         {
         case 1:
@@ -141,17 +145,17 @@ void Measure()
     }
 }
 
-//array of structures containing all the account details
-struct amount
+// array of structures containing all the account details
+struct account
 {
-    float money;
-    char name[20];
+    float money;   // amount of money in account
+    char name[20]; // name of account
 };
 char inputCurr[10];
 float convUnits[20] = {1.0, 0.013, 0.010, 1.53, 0.012};
-struct amount a[10];
+struct account a[10];
 
-//find what is the currency that the user entered
+// find what is the currency that the user entered
 void findCurr(int key, float inp)
 {
     int x;
@@ -160,12 +164,12 @@ void findCurr(int key, float inp)
     {
         if (strcmp(inputCurr, currencies[x]) == 0)
         {
-            a[key].money = inp / convUnits[x];
+            a[key].money = inp / convUnits[x]; // simplify the currency into rupees
         }
     }
 }
 
-//convert the money in the account to different units
+// convert the money in the account to different units
 void convert(int key)
 {
     float rupees, dollars, pounds, yen, euro;
@@ -178,7 +182,7 @@ void convert(int key)
     printf("\n%s\t₹%.2f\t$%.2f\t\t£%.2f\t\t¥%.2f\t\t€%.2f\n", a[key].name, a[key].money, dollars, pounds, yen, euro);
 }
 
-//display the account details with converted units
+// display the account details with converted units
 void display(int n)
 {
     int i;
@@ -190,7 +194,7 @@ void display(int n)
     }
 }
 
-//add a new account to the array
+// add a new account to the array
 void add(int n)
 {
     float inp;
@@ -201,11 +205,11 @@ void add(int n)
     printf("enter the amount : ");
     scanf("%f %s", &inp, &inputCurr);
     printf("account successfully added");
-    //find input currency
+    // find input currency
     findCurr(n, inp);
 }
 
-//search for the account that the user wants to veiw
+// search for the account that the user wants to veiw
 void search(int n)
 {
     int i, found = 0;
@@ -218,7 +222,7 @@ void search(int n)
         if (strcmp(a[i].name, sname) == 0)
         {
             found++;
-            //display details of the found account
+            // display details of the found account
             printf("\nAccount details are:\n");
             convert(i);
         }
@@ -229,7 +233,7 @@ void search(int n)
     }
 }
 
-//edit the amount of money in an existing account
+// edit the amount of money in an existing account
 void edit(int n)
 {
     int i;
@@ -250,7 +254,7 @@ void edit(int n)
     }
 }
 
-//remove the details from unrequired account
+// remove the details from unrequired account
 void remove(int n)
 {
     int i, found = 0;
@@ -273,7 +277,7 @@ void remove(int n)
     }
 }
 
-//function to convert currency
+// function to convert currency
 void Currency()
 {
     int i, n = 0, ch;
@@ -315,7 +319,7 @@ int main()
     int s;
     while (s != 3)
     {
-        //switch between measurement and currency convertor
+        // switch between measurement and currency convertor
         printf("\n1.Measurement\t2.Currency\tPress '3' to Exit\n");
         scanf("%d", &s);
         switch (s)
