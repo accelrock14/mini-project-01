@@ -3,102 +3,48 @@
 #include <list>
 #include <string.h>
 using namespace std;
-
-// convert the simpified input unit to all different available units
-void calculate(char units[][20], list<float> con, float value)
+#pragma region functions
+void add(int);
+void calculate(char[][20], list<float>, float);
+void simplify(char[][20], list<float>);
+void history();
+void Measure();
+void findCurr(int, float);
+void convert(int);
+void display(int);
+void add(int);
+void search(int);
+void edit(int);
+void remove(int);
+void Currency();
+#pragma endregion
+int main()
 {
-    int ele = 0;
-    float sol;
-
-    FILE *fp1;
-    fp1 = fopen("history.txt", "a");
-    if (fp1 == NULL)
+    int s;
+    while (s != 3)
     {
-        printf("Error: could not open file\n");
-    }
-
-    // divide with the list containing conversion units
-    for (auto i = con.begin(); i != con.end(); i++)
-    {
-        sol = value / *i; // convert to all other available units
-        printf("%.2f %s\n", sol, units[ele]);
-        // insert the results into a history file
-        fprintf(fp1, "%.2f %s\n", sol, units[ele]);
-        ele++;
-    }
-    printf("\n");
-    fclose(fp1);
-}
-
-// simplify the input unit to the simplest unit
-void simplify(char units[][20], list<float> con)
-{
-    int ele = 0;
-    float value, input;
-    char unit[10];
-
-    scanf("%f %s", &input, &unit);
-
-    FILE *fp1;
-    fp1 = fopen("history.txt", "a");
-
-    printf("\nConvertions of %.2f %s are:\n", input, unit);
-    fprintf(fp1, "\nConvertions of %.2f %s are:\n", input, unit);
-    fclose(fp1);
-
-    // find the input uniy and multiply with the list containing conversion units
-    for (auto i = con.begin(); i != con.end(); i++)
-    {
-        if (strcmp(unit, units[ele]) == 0)
+        // switch between measurement and currency convertor
+        printf("\n1.Measurement\t2.Currency\tPress '3' to Exit\n");
+        scanf("%d", &s);
+        switch (s)
         {
-            value = input * *i;
-            calculate(units, con, value);
+        case 1:
+            Measure();
+            break;
+        case 2:
+            Currency();
+            break;
+        case 3:
+            break;
+        default:
+            printf("\nInvalid Input!!\n");
+            break;
         }
-        ele++;
     }
-    if (ele == 0)
-    {
-        printf("Unit not found !!\n");
-    }
+    return 0;
 }
 
-void history()
-{
-    int ch;
-    const int max = 256;
-    char details[50];
-    printf("1.Veiw history\t2.clear history\n");
-    scanf("%d", &ch);
-
-    FILE *fp1;
-
-    switch (ch)
-    {
-    // veiw the history saved in the history file
-    case 1:
-        fp1 = fopen("history.txt", "r");
-        if (fp1 == NULL)
-        {
-            printf("Error: could not open file\n");
-        }
-
-        char buffer[max];
-        // gets read the contents of the file one line at a time
-        while (fgets(buffer, max, fp1))
-            printf("%s", buffer);
-        break;
-    case 2:
-        // clear the history saved in the history file
-        fp1 = fopen("history.txt", "w");
-        fprintf(fp1, " ");
-        printf("history has been cleared\n");
-        break;
-    default:
-        printf("INVALID INPUT!\n");
-    }
-    fclose(fp1);
-}
-
+#pragma region measurement
 void Measure()
 {
     // conversions units and SI units of the different measurement systems
@@ -145,6 +91,104 @@ void Measure()
     }
 }
 
+// simplify the input unit to the simplest unit
+void simplify(char units[][20], list<float> con)
+{
+    int ele = 0, found = 0;
+    float value, input;
+    char unit[10];
+
+    scanf("%f %s", &input, &unit);
+
+    FILE *fp1;
+    fp1 = fopen("history.txt", "a");
+
+    printf("\nConvertions of %.2f %s are:\n", input, unit);
+    fprintf(fp1, "\nConvertions of %.2f %s are:\n", input, unit);
+    fclose(fp1);
+
+    // find the input uniy and multiply with the list containing conversion units
+    for (auto i = con.begin(); i != con.end(); i++)
+    {
+        if (strcmp(unit, units[ele]) == 0)
+        {
+            value = input * *i;
+            found = 1;
+            calculate(units, con, value);
+        }
+        ele++;
+    }
+    if (found == 0)
+    {
+        printf("Unit not found !!\n");
+    }
+}
+
+// convert the simpified input unit to all different available units
+void calculate(char units[][20], list<float> con, float value)
+{
+    int ele = 0;
+    float sol;
+
+    FILE *fp1;
+    fp1 = fopen("history.txt", "a");
+    if (fp1 == NULL)
+    {
+        printf("Error: could not open file\n");
+    }
+
+    // divide with the list containing conversion units
+    for (auto i = con.begin(); i != con.end(); i++)
+    {
+        sol = value / *i; // convert to all other available units
+        printf("%.2f %s\n", sol, units[ele]);
+        // insert the results into a history file
+        fprintf(fp1, "%.2f %s\n", sol, units[ele]);
+        ele++;
+    }
+    printf("\n");
+    fclose(fp1);
+}
+
+void history()
+{
+    int ch;
+    const int max = 256;
+    char details[50];
+    printf("1.Veiw history\t2.clear history\n");
+    scanf("%d", &ch);
+
+    FILE *fp1;
+
+    switch (ch)
+    {
+    // veiw the history saved in the history file
+    case 1:
+        fp1 = fopen("history.txt", "r");
+        if (fp1 == NULL)
+        {
+            printf("Error: could not open file\n");
+        }
+
+        char buffer[max];
+        // gets read the contents of the file one line at a time
+        while (fgets(buffer, max, fp1))
+            printf("%s", buffer);
+        break;
+    case 2:
+        // clear the history saved in the history file
+        fp1 = fopen("history.txt", "w");
+        fprintf(fp1, " ");
+        printf("history has been cleared\n");
+        break;
+    default:
+        printf("INVALID INPUT!\n");
+    }
+    fclose(fp1);
+}
+#pragma endregion
+
+#pragma region currency
 // array of structures containing all the account details
 struct account
 {
@@ -155,16 +199,42 @@ char inputCurr[10];
 float convUnits[20] = {1.0, 0.013, 0.010, 1.53, 0.012};
 struct account a[10];
 
-// find what is the currency that the user entered
-void findCurr(int key, float inp)
+// function to convert currency
+void Currency()
 {
-    int x;
-    char currencies[][20] = {"rupees", "dollars", "pounds", "yen", "euro"};
-    for (x = 0; x < 5; x++)
+    int i, n = 0, ch;
+    float inp;
+
+    while (ch != 6)
     {
-        if (strcmp(inputCurr, currencies[x]) == 0)
+        printf("\nselect option\n1.Display\t2.Add\t3.Search\t4.Edit\t5.Delete\t6.Back\n");
+        scanf("%d", &ch);
+        switch (ch)
         {
-            a[key].money = inp / convUnits[x]; // simplify the currency into rupees
+        case 1:
+            display(n);
+            break;
+        case 2:
+            printf("\nenter the %d acount details \n", n + 1);
+            printf("enter the account name without white spaces: ");
+            scanf("%s", a[n].name);
+            add(n);
+            n++;
+            break;
+        case 3:
+            search(n);
+            break;
+        case 4:
+            edit(n);
+            break;
+        case 5:
+            remove(n);
+            break;
+        case 6:
+            break;
+        default:
+            printf("Invalid choise!!");
+            break;
         }
     }
 }
@@ -182,6 +252,27 @@ void convert(int key)
     printf("\n%s\t₹%.2f\t$%.2f\t\t£%.2f\t\t¥%.2f\t\t€%.2f\n", a[key].name, a[key].money, dollars, pounds, yen, euro);
 }
 
+// find what is the currency that the user entered
+void findCurr(int key, float inp)
+{
+    int x, found = 0;
+    char currencies[][20] = {"rupees", "dollars", "pounds", "yen", "euro"};
+    for (x = 0; x < 5; x++)
+    {
+        if (strcmp(inputCurr, currencies[x]) == 0)
+        {
+            found = 1;
+            a[key].money = inp / convUnits[x]; // simplify the currency into rupees
+            printf("new amount successfully added");
+        }
+    }
+    if (found == 0)
+    {
+        printf("Invalid input currency!!\nenter valid unit of currency\n");
+        add(key);
+    }
+}
+
 // display the account details with converted units
 void display(int n)
 {
@@ -197,14 +288,10 @@ void display(int n)
 // add a new account to the array
 void add(int n)
 {
-    float inp;
+    float inp, i;
 
-    printf("\nenter the %d acount details \n", n + 1);
-    printf("enter the account name without white spaces: ");
-    scanf("%s", a[n].name);
     printf("enter the amount : ");
     scanf("%f %s", &inp, &inputCurr);
-    printf("account successfully added");
     // find input currency
     findCurr(n, inp);
 }
@@ -249,7 +336,6 @@ void edit(int n)
             printf("enter the new amount : ");
             scanf("%f %s", &inp, &inputCurr);
             findCurr(i, inp);
-            printf("Successfully edited");
         }
     }
 }
@@ -276,66 +362,4 @@ void remove(int n)
         printf("Account not found\n");
     }
 }
-
-// function to convert currency
-void Currency()
-{
-    int i, n = 0, ch;
-    float inp;
-
-    while (ch != 6)
-    {
-        printf("\nselect option\n1.Display\t2.Add\t3.Search\t4.Edit\t5.Delete\t6.Back\n");
-        scanf("%d", &ch);
-        switch (ch)
-        {
-        case 1:
-            display(n);
-            break;
-        case 2:
-            add(n);
-            n++;
-            break;
-        case 3:
-            search(n);
-            break;
-        case 4:
-            edit(n);
-            break;
-        case 5:
-            remove(n);
-            break;
-        case 6:
-            break;
-        default:
-            printf("Invalid choise!!");
-            break;
-        }
-    }
-}
-
-int main()
-{
-    int s;
-    while (s != 3)
-    {
-        // switch between measurement and currency convertor
-        printf("\n1.Measurement\t2.Currency\tPress '3' to Exit\n");
-        scanf("%d", &s);
-        switch (s)
-        {
-        case 1:
-            Measure();
-            break;
-        case 2:
-            Currency();
-            break;
-        case 3:
-            break;
-        default:
-            printf("\nInvalid Input!!\n");
-            break;
-        }
-    }
-    return 0;
-}
+#pragma endregion
